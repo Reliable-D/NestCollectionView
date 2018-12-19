@@ -14,7 +14,7 @@
 #define ScreenWidth [UIScreen mainScreen].bounds.size.width
 #define ScreenHeight [UIScreen mainScreen].bounds.size.height
 
-@interface ViewController () <LinePageViewDelegate,LinePageViewDataSource,UIScrollViewDelegate,FLScrollViewDelegate>
+@interface ViewController () <LinePageViewDelegate,LinePageViewDataSource,UIScrollViewDelegate,FLScrollViewDelegate,FLHeaderViewDelegate>
 
 @property (nonatomic, strong) FLHeaderView *headerView;
 
@@ -46,6 +46,7 @@
     
     self.headerView = [[FLHeaderView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 844)];
     self.headerView.backgroundColor = [UIColor orangeColor];
+    self.headerView.scrollDelegate = self;
     
     CGFloat headerItemY = 10;
     CGFloat headerItemMargin = 10;
@@ -65,17 +66,19 @@
     
     [self.view addSubview:self.headerView];
     
-//    self.catBar = [[UIScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.headerView.frame)-44, ScreenWidth, 44)];
-//    self.catBar.backgroundColor = [UIColor lightGrayColor];
-//    CGFloat catBarStartX = 10;
-//    for (int i = 0; i < 10; i++) {
-//        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(catBarStartX, 0, 60, 44)];
-//        titleLabel.textColor = [UIColor blueColor];
-//        titleLabel.text = [NSString stringWithFormat:@"分类-%d",i+1];
-//        catBarStartX = CGRectGetMaxX(titleLabel.frame)+10;
-//        [self.catBar addSubview:titleLabel];
-//    }
-//    self.catBar.contentSize = CGSizeMake(catBarStartX, 0);
+    self.catBar = [[UIScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.headerView.frame)-44, ScreenWidth, 44)];
+    self.catBar.backgroundColor = [UIColor lightGrayColor];
+    CGFloat catBarStartX = 10;
+    for (int i = 0; i < 10; i++) {
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(catBarStartX, 0, 60, 44)];
+        titleLabel.textColor = [UIColor blueColor];
+        titleLabel.text = [NSString stringWithFormat:@"分类-%d",i+1];
+        catBarStartX = CGRectGetMaxX(titleLabel.frame)+10;
+        [self.catBar addSubview:titleLabel];
+    }
+    self.catBar.contentSize = CGSizeMake(catBarStartX, 0);
+    [self.view addSubview:self.catBar];
+    self.headerView.relateBottomView = self.catBar;
     
     self.linePageView = [[LinePageView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
     [self.view addSubview:self.linePageView];
@@ -93,7 +96,8 @@
     }
     self.currentScrollView = self.scrollArray.firstObject;
     
-    //[self.view bringSubviewToFront:self.headerView];
+    [self.view bringSubviewToFront:self.headerView];
+    [self.view bringSubviewToFront:self.catBar];
 }
 
 #pragma mark- UIScrollViewDelegate
@@ -182,5 +186,12 @@
     return nil;
 }
 
+#pragma mark- FLHeaderViewDelegate
+- (void)headerViewDidScroll:(CGFloat)offSet
+{
+    CGPoint currentScrollViewOffSet = self.currentScrollView.contentOffset;
+    currentScrollViewOffSet.y -= offSet;
+    [self.currentScrollView setContentOffset:currentScrollViewOffSet animated:NO];//不能有动画，否则会无法触发滚动
+}
 
 @end

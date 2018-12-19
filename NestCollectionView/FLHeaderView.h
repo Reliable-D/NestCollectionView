@@ -10,7 +10,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol FLHeaderViewDelegate <NSObject>
+
+- (void)headerViewDidScroll:(CGFloat)offSet;
+
+@end
+
 @interface FLHeaderView : UIView
+
+@property (nonatomic, weak) id<FLHeaderViewDelegate> scrollDelegate;
+
+@property (nonatomic, weak) UIView *relateBottomView;
 
 @end
 
